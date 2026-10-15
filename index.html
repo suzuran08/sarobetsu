@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飛航英文抽題測驗</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .question-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .question-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .option {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .option:hover {
+            background: #d3d9df;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>飛航英文隨機測驗 (5題)</h1>
+    <div id="quiz-container">載入題目中...</div>
+    <button onclick="loadQuiz()">重新抽題</button>
+
+    <script>
+        let allQuestions = [];
+
+        // 讀取並解析 CSV 檔案
+        async function fetchQuestions() {
+            try {
+                const response = await fetch('questions.csv');
+                const data = await response.text();
+                parseCSV(data);
+                loadQuiz();
+            } catch (error) {
+                document.getElementById('quiz-container').innerHTML = '讀取題庫失敗，請確認網頁是否在伺服器環境下執行 (例如 Live Server)。';
+            }
+        }
+
+        function parseCSV(data) {
+            const rows = data.trim().split('\n');
+            // 跳過第一行標題，整理成物件陣列
+            allQuestions = rows.slice(1).map(row => {
+                const cols = row.split(',');
+                return {
+                    letter: cols[0],
+                    correct: cols[1],
+                    options: [cols[1], cols[2], cols[3], cols[4], cols[5]]
+                };
+            });
+        }
+
+        // 打亂陣列 (Fisher-Yates Shuffle)
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 抽取 5 題並顯示
+        function loadQuiz() {
+            if (allQuestions.length === 0) return;
+
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            // 隨機打亂所有題目，並取出前 5 題
+            const selectedQuestions = shuffle([...allQuestions]).slice(0, 5);
+
+            selectedQuestions.forEach((q, index) => {
+                // 將這題的選項打亂，避免正確答案永遠在第一個
+                const shuffledOptions = shuffle([...q.options]);
+
+                let html = `
+                    <div class="question-card">
+                        <div class="question-title">第 ${index + 1} 題：請選出代表字母「${q.letter}」的正確單字</div>
+                `;
+                
+                shuffledOptions.forEach(opt => {
+                    html += `<label class="option"><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
+                });
+
+                html += `</div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        // 網頁載入時執行
+        window.onload = fetchQuestions;
+    </script>
+</body>
+</html>

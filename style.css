@@ -1,0 +1,24 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+}
+
+/* Chiron GoRound TC 字體樣式設定 */
+.chiron-goround-tc-regular {
+  font-family: "Chiron GoRound TC", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Noto Sans HK 字體樣式設定 */
+.noto-sans-hk-regular {
+  font-family: "Noto Sans HK", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
